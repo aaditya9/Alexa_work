@@ -68,18 +68,17 @@ def lambda_handler(request, context):
             capability_alexa_powercontroller = adr.create_payload_endpoint_capability(
                 interface='Alexa.PowerController',
                 supported=[{'name': 'powerState'}])
-            print('capability_alexa $ capability_alexa_powercontroller -->', capability_alexa,
-                  capability_alexa_powercontroller)
-            adr.add_payload_endpoint(
-                friendly_name='Fan switch',
-                endpoint_id='fanswitch-001',
 
-                capabilities=[capability_alexa, capability_alexa_powercontroller]
-            )
+            switch_list = ['Fan Switch', 'Light Switch', 'Oven Switch']
+            for switch in switch_list:
+                adr.add_payload_endpoint(
+                    friendly_name=switch,
+                    endpoint_id=switch,
+                    capabilities=[capability_alexa, capability_alexa_powercontroller]
+                )
             return send_response(adr.get())
 
     if namespace == 'Alexa.PowerController':
-
         # Note: This sample always returns a success response for either a request to TurnOff or TurnOn
         endpoint_id = request['directive']['endpoint']['endpointId']
         power_state_value = 'OFF' if name == 'TurnOff' else 'ON'
@@ -183,36 +182,20 @@ class AlexaResponse:
     def create_payload_endpoint(self, **kwargs):
         # Return the proper structure expected for the endpoint
         endpoint = {
-          'endpointId': kwargs.get('endpoint_id', 'endpoint_' + "%0.6d" % random.randint(0, 999999)),
-          'manufacturerName': kwargs.get('manufacturer_name', 'Sample Manufacturer'),
-          'description': kwargs.get('description', 'Sample Endpoint Description'),
-          'friendlyName': kwargs.get('friendly_name', 'Sample Endpoint'),
-          'displayCategories': kwargs.get('display_categories', ['OTHER']),
-          'additionalAttributes':  {
-            'manufacturer': "the manufacturer name of the endpoint",
-            'model' : "the model of the device",
-            'serialNumber': "the serial number of the device",
-            'firmwareVersion' : "the firmware version of the device",
-            'softwareVersion': "the software version of the device",
-            'customIdentifier': "your custom identifier for the device"
-          },
-            # 'capabilities': kwargs.get('capabilities', []),
-            # 'description': kwargs.get('description', 'Sample Endpoint Description'),
-            # 'displayCategories': kwargs.get('display_categories', ['OTHER']),
-            # 'endpointId': kwargs.get('endpoint_id', 'endpoint_' + "%0.6d" % random.randint(0, 999999)),
-            # 'friendlyName': kwargs.get('friendly_name', 'Sample Endpoint'),
-            # 'manufacturerName': kwargs.get('manufacturer_name', 'Sample Manufacturer')
+            'capabilities': kwargs.get('capabilities', []),
+            'description': kwargs.get('description', 'Sample Endpoint Description'),
+            'displayCategories': kwargs.get('display_categories', ['OTHER']),
+            'endpointId': kwargs.get('endpoint_id', 'endpoint_' + "%0.6d" % random.randint(0, 999999)),
+            'friendlyName': kwargs.get('friendly_name', 'Sample Endpoint'),
+            'manufacturerName': kwargs.get('manufacturer_name', 'Sample Manufacturer')
         }
 
         if 'cookie' in kwargs:
             endpoint['cookie'] = kwargs.get('cookie', {})
 
-        endpoint['capabilities']= kwargs.get('capabilities', [])
-
         return endpoint
 
     def create_payload_endpoint_capability(self, **kwargs):
-
         capability = {
             'type': kwargs.get('type', 'AlexaInterface'),
             'interface': kwargs.get('interface', 'Alexa'),
